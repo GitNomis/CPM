@@ -37,7 +37,7 @@ let config = {
 		// Basic CPM parameters
 		torus : [true,true],						// Should the grid have linked borders?
 		seed : 1,							// Seed for random number generation.
-		T : 20,								// CPM temperature
+		T : 0,								// CPM temperature
 
 		// Constraint parameters. 
 		// Mostly these have the format of an array in which each element specifies the
@@ -45,13 +45,17 @@ let config = {
 		// First value is always cellkind 0 (the background) and is often not used.
 		
 		// Adhesion parameters:
-		J : [ [NaN, 12, 6], [12, 6, 16], [6, 16, 6] ],
+		J : [ [0, 0, 0], [0, 0, 0], [0, 0, 0] ],
 		
 		// VolumeConstraint parameters
 		// VolumeConstraint importance per cellkind
 		// Target volume of each cellkind
-		LAMBDA_V : [0,2,2],
-		V : [0,25,25]		
+		LAMBDA_V : [0,10,10],
+		V : [0,1000,1000],		
+
+		// Target perimeter of each cellkind
+		LAMBDA_P : [0,10,10],
+		P : [0,1000,1000]		
 
 		
 	},
@@ -123,8 +127,10 @@ function initializeGrid(){
 	// add the GridManipulator if not already there and if you need it
 	if( !this.helpClasses["gm"] ){ this.addGridManipulator() }
 	
-	this.gm.seedCellsInCircle( 1, 500, this.C.midpoint, this.C.extents[0]/3 )
-	this.gm.seedCellsInCircle( 2, 500, this.C.midpoint, this.C.extents[0]/3 )
+	let circ1 = this.gm.makeCircle( [300,250], 50 )
+	this.gm.assignCellPixels( circ1, 1 )
+	let circ2 = this.gm.makeCircle( [200,250], 50 )
+	this.gm.assignCellPixels( circ2, 2 )
 
 }
 
