@@ -88,7 +88,7 @@ input:checked + .slider:before {
 /* An example 2D CPM with multiple cells of different kinds, and multiple
 visualizations. */
 
-let C,Cim,t=0, burnin_time=50, maxtime=500000, A
+let C,Cim,t=0, burnin_time=50, maxtime=500000, A, spacing=50
 	let cells = []
 
 function seedCell( k ){
@@ -190,6 +190,16 @@ function killAllCells(){
 	cells = []
 }
 
+function createObstacleGrid(){
+	for(var i = 0; i < 250; i += spacing){
+		for(var j = 0; j < 250; j += spacing){
+			let cid = C.makeNewCellID( 2 )
+			C.setpix( [i,j], cid )
+			cells.push(cid)
+		}
+	}
+
+}
 
 function draw(){
 	// Clear the canvas (white), and draw the stroma border in gray
@@ -239,6 +249,9 @@ function stopsim(){
 <button onclick="seedCells(100)">+100 cells</button>
 <button onclick="killCell()">remove cell</button>
 <button onclick="killAllCells()">remove all cells</button>
+<button onclick="createObstacleGrid()">create obstacle grid</button>
+with spacing:
+<input type="text" value="50" id="jte" oninput="spacing=parseInt(this.value)">
     </div>
     <div id="switch">
       T-cells
