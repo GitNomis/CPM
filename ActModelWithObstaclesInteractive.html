@@ -83,19 +83,21 @@ input:checked + .slider:before {
 <meta charset="utf-8">
 <!-- <link href="stylesheet.css" rel="stylesheet"> -->
 <script type="text/javascript" src="artistoo.js"></script>
+<script src="./fpsmeter.min.js"></script>
 <script type="text/javascript">
 
 /* An example 2D CPM with multiple cells of different kinds, and multiple
 visualizations. */
 
-let C,Cim,t=0, burnin_time=50, maxtime=500000, A, spacing=50
-	let cells = []
+let C,Cim,gm, meter ,t=0, burnin_time=50, maxtime=500000, A, spacing=50
+	let cells = [], centroids = [], pixels = [], types = []
 
 function seedCell( k ){
 	let x = C.ran(0,249), y = C.ran(0,249)
 	let cid = C.makeNewCellID( k )
-	C.setpix( [x,y], cid )
+	gm.assignCellPixels( gm.makeCircle( [x,y], radius.value ), k, cid )
 	cells.push(cid)
+	types.push(k)
 }
 
 function initialize(){
@@ -103,24 +105,23 @@ function initialize(){
 	C = new CPM.CPM( [250,250], {
 		LAMBDA_P : [0,2,5000],
 		LAMBDA_V : [0,50,50],
+		LAMBDA_ACT : [0,200,0],
 		P : [0,180,20],
 		V : [0,200,15000],
+		MAX_ACT : [0,80,0],
+		ACT_MEAN : "geometric",
 		J : [ [0,     20,   20000],
           [20,    0,    0],
           [20000, 0,    0] ],
 		T : 20,
+		IS_BARRIER : [false,false,false],
 		torus : [true,true]
 	})
 	//C.add( new CPM.Adhesion( C.conf ) )
 	//C.add( new CPM.VolumeConstraint( C.conf ) )
 	//C.add( new CPM.PerimeterConstraint( C.conf ) )
-	A = new CPM.ActivityConstraint( {
-		MAX_ACT : [0,80,0],
-		ACT_MEAN : "geometric",
-		LAMBDA_ACT : [0,200,0]
-	} )
-	C.add( A )
-
+	gm = new CPM.GridManipulator( C )
+	meter = new FPSMeter({left:"auto", right:"5px"})
 
 	// Create a canvas to draw on
     let canvasDiv = document.getElementById("canvas-div")
@@ -129,21 +130,21 @@ function initialize(){
     console.log(canvas)
 
       canvas.onclick = function(e) {
-      let x = Math.round((e.clientX - canvas.offsetLeft)/2);
-      let y = Math.round((e.clientY - canvas.offsetTop)/2);
-      console.log(x, y);
+		let x = Math.round((e.clientX - canvas.offsetLeft)/2);
+		let y = Math.round((e.clientY - canvas.offsetTop)/2);
+		console.log(x, y);
 
-      if (!toggle.checked){
-        var k = 1;
-      }
-      if (toggle.checked){
-        var k = 2;
-      }
+		if (!toggle.checked){
+			var k = 1;
+		}
+		if (toggle.checked){
+			var k = 2;
+		}
 
-      let cid = C.makeNewCellID( k )
-      C.setpix( [x,y], cid )
-      cells.push(cid)
-
+		let cid = C.makeNewCellID( k )
+		gm.assignCellPixels( gm.makeCircle( [x,y], radius.value ), k, cid )
+		cells.push(cid)
+		types.push(k)
       }
 
 
@@ -206,9 +207,14 @@ function draw(){
 	Cim.clear( "eaecef" )
 	// Draw celltype 1 black with activity values
 	Cim.drawCells( 1, "000000")
-	Cim.drawActivityValues( 1, A )
+	Cim.drawActivityValues( 1, C.getConstraint("ActivityConstraint") )
   // Draw celltype 2 in boring gray (not Rebecca purple)
   Cim.drawCells( 2, "939393")
+}
+
+function recordStats(){
+	pixels.push(C.getStat( CPM.PixelsByCell ))
+	centroids.push(C.getStat( CPM.CentroidsWithTorusCorrection ))
 }
 
 // Continue until the maximum simulation time is reached.
@@ -218,7 +224,8 @@ function timestep(){
 		C.timeStep()
 	}
 	draw()
-
+	meter.tick()
+	recordStats()
 	t++
 	if( !C.stop ){
 		requestAnimationFrame( timestep )
@@ -233,6 +240,10 @@ function startsim(){
 }
 function stopsim(){
 	C.stop = true
+	console.log(pixels)
+	console.log(centroids)
+	console.log(types)
+	
 }
 
 
@@ -296,14 +307,19 @@ with spacing:
 <form autocomplete="off">
 <table>
 <tr>
+	<td>Radius</td><td>
+	<input type="text" value="1" id="radius">
+	</td>
+</tr>
+<tr>
 	<td>Adhesion<sub>Tcell-matrix</sub></td><td>
 	<input type="text" value="20" id="jte" oninput="C.conf.J[1][0]=C.conf.J[0][1]=parseInt(this.value)">
 	</td>
 	<td>Adhesion<sub>obstacle-matrix</sub></td><td>
 	<input type="text" value="20000" id="jtt" oninput="C.conf.J[2][0]=C.conf.J[0][2]=parseInt(this.value)">
 	</td>
-  <td>Adhesion<sub>Tcell-obstacle</sub></td><td>
-  <input type="text" value="0" id="jtt" oninput="C.conf.J[2][1]=C.conf.J[1][2]=parseInt(this.value)">
+	<td>Adhesion<sub>Tcell-obstacle</sub></td><td>
+	<input type="text" value="0" id="jtt" oninput="C.conf.J[2][1]=C.conf.J[1][2]=parseInt(this.value)">
   </td>
 </tr>
 <tr>
@@ -313,8 +329,8 @@ with spacing:
 	<td>Adhesion<sub>Tcell-Tcell</sub></td><td>
 	<input type="text" value="0" id="jtt" oninput="C.conf.J[1][1]=parseInt(this.value)">
 	</td>
-  <td>Adhesion<sub>obstacle-obstacle</sub></td><td>
-  <input type="text" value="0" id="jtt" oninput="C.conf.J[2][2]=parseInt(this.value)">
+	<td>Adhesion<sub>obstacle-obstacle</sub></td><td>
+	<input type="text" value="0" id="jtt" oninput="C.conf.J[2][2]=parseInt(this.value)">
   </td>
 </tr>
 <tr>
@@ -382,6 +398,5 @@ with spacing:
 <div id="canvas-div">
 
 </div>
-<script src="https://unpkg.com/ionicons@5.1.2/dist/ionicons.js"></script>
 </body>
 </html>

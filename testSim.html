@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Cellsorting</title>
+<title>test Sim</title>
 <style type="text/css">
-body{
-		font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue",
-		 Helvetica, Arial, "Lucida Grande", sans-serif;
-	 padding : 15px;
-	 max-width: 600px;
-	 margin: auto;
+html {
+	display: table;
+	margin: auto;
 }
-td {
-	 padding: 10px;
-	 vertical-align: top;
+
+body{
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue",
+		Helvetica, Arial, "Lucida Grande", sans-serif;
+	display: table-cell;
+    vertical-align: middle;
 }
 </style>
 
@@ -37,7 +37,7 @@ let config = {
 		// Basic CPM parameters
 		torus : [true,true],						// Should the grid have linked borders?
 		seed : 1,							// Seed for random number generation.
-		T : 0,								// CPM temperature
+		T : 1000,								// CPM temperature
 
 		// Constraint parameters. 
 		// Mostly these have the format of an array in which each element specifies the
@@ -45,7 +45,8 @@ let config = {
 		// First value is always cellkind 0 (the background) and is often not used.
 		
 		// Adhesion parameters:
-		J : [ [0, 0, 0], [0, 0, 0], [0, 0, 0] ],
+		LAMBDA_J : [10,10,10],
+		J : [ [0, 10000, 10000], [10000, 0, 0], [10000, 0, 0] ],
 		
 		// VolumeConstraint parameters
 		// VolumeConstraint importance per cellkind
@@ -54,9 +55,10 @@ let config = {
 		V : [0,1000,1000],		
 
 		// Target perimeter of each cellkind
-		LAMBDA_P : [0,10,10],
-		P : [0,1000,1000]		
+		LAMBDA_P : [0,1000,1000],
+		P : [0,100,100],		
 
+		IS_BARRIER : [false,true,false]
 		
 	},
 	
@@ -68,7 +70,7 @@ let config = {
 		// non-background cellkinds.
 	
 		// Runtime etc
-		BURNIN : 500,
+		BURNIN : 0,
 		RUNTIME : 1000,
 		RUNTIME_BROWSER : 20000,
 		
@@ -128,6 +130,7 @@ function initializeGrid(){
 	if( !this.helpClasses["gm"] ){ this.addGridManipulator() }
 	
 	let circ1 = this.gm.makeCircle( [300,250], 50 )
+	console.log(circ1)
 	this.gm.assignCellPixels( circ1, 1 )
 	let circ2 = this.gm.makeCircle( [200,250], 50 )
 	this.gm.assignCellPixels( circ2, 2 )
@@ -138,7 +141,7 @@ function initializeGrid(){
 </head>
 <body onload="initialize()">
  
- <h1>Cell Sorting</h1>
- <p>The Graner and Glazier CPM: cells sorting themselves through differential adhesion.</p>
+ <h1>test simulation</h1>
+ <p>A CPM: testing some stuff.</p>
 </body>
 </html>
