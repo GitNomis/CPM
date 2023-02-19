@@ -82,7 +82,7 @@ input:checked + .slider:before {
 
 <meta charset="utf-8">
 <!-- <link href="stylesheet.css" rel="stylesheet"> -->
-<script type="text/javascript" src="artistoo.js"></script>
+<script type="text/javascript" src="./artistoo.js"></script>
 <script src="./fpsmeter.min.js"></script>
 <script type="text/javascript">
 
@@ -103,18 +103,18 @@ function seedCell( k ){
 function initialize(){
 	// Create a CPM object
 	C = new CPM.CPM( [250,250], {
-		LAMBDA_P : [0,2,5000],
+		LAMBDA_P : [0,2,2],
 		LAMBDA_V : [0,50,50],
 		LAMBDA_ACT : [0,200,0],
-		P : [0,180,20],
-		V : [0,200,15000],
+		P : [0,180,36],
+		V : [0,200,100],
 		MAX_ACT : [0,80,0],
 		ACT_MEAN : "geometric",
-		J : [ [0,     20,   20000],
-          [20,    0,    0],
-          [20000, 0,    0] ],
+		J : [ [0,     20,   0],
+          [20,    0,    20],
+          [0, 0,    0] ],
 		T : 20,
-		IS_BARRIER : [false,false,true],
+		IS_BARRIER : [false,false,false],
 		torus : [true,true]
 	})
 	//C.add( new CPM.Adhesion( C.conf ) )
@@ -214,9 +214,15 @@ function draw(){
   Cim.drawCells( 2, "939393")
 }
 
-function recordStats(){
+function recordStats(t){
 	pixels.push(C.getStat( CPM.PixelsByCell ))
 	centroids.push(C.getStat( CPM.CentroidsWithTorusCorrection ))
+	if (t%1000==0){
+		console.log(pixels)
+		console.log(centroids)
+		pixels = []
+		centroids = []
+	}
 }
 
 // Continue until the maximum simulation time is reached.
@@ -227,7 +233,7 @@ function timestep(){
 	}
 	draw()
 	meter.tick()
-	recordStats()
+	recordStats(t)
 	t++
 	if( !C.stop ){
 		requestAnimationFrame( timestep )
@@ -240,6 +246,7 @@ function startsim(){
 		timestep()
 	}
 }
+
 function stopsim(){
 	C.stop = true
 	console.log(pixels)
@@ -318,10 +325,10 @@ with spacing:
 	<input type="text" value="20" id="jte" oninput="C.conf.J[1][0]=C.conf.J[0][1]=parseInt(this.value)">
 	</td>
 	<td>Adhesion<sub>obstacle-matrix</sub></td><td>
-	<input type="text" value="20000" id="jtt" oninput="C.conf.J[2][0]=C.conf.J[0][2]=parseInt(this.value)">
+	<input type="text" value="0" id="jtt" oninput="C.conf.J[2][0]=C.conf.J[0][2]=parseInt(this.value)">
 	</td>
 	<td>Adhesion<sub>Tcell-obstacle</sub></td><td>
-	<input type="text" value="0" id="jtt" oninput="C.conf.J[2][1]=C.conf.J[1][2]=parseInt(this.value)">
+	<input type="text" value="20" id="jtt" oninput="C.conf.J[2][1]=C.conf.J[1][2]=parseInt(this.value)">
   </td>
 </tr>
 <tr>
@@ -345,7 +352,7 @@ with spacing:
 </tr>
 <tr>
 	<td>Volume<sub>obstacle</sub></td><td>
-		<input type="text" value="15000" id="volume" oninput="if(parseInt(this.value)>0){C.conf.V[2]=parseInt(this.value)}">
+		<input type="text" value="100" id="volume" oninput="if(parseInt(this.value)>0){C.conf.V[2]=parseInt(this.value)}">
 	</td>
 	<td>&lambda;<sub>Volume<sub>obstacle</sub></sub></td><td>
 		<input type="text" value="50" id="lvolume" oninput="C.conf.LAMBDA_V[2]=parseInt(this.value)">
@@ -361,26 +368,26 @@ with spacing:
 </tr>
 <tr>
 	<td>Perimeter<sub>obstacle</sub></td><td>
-		<input type="text" value="20" id="perimeter" oninput="C.conf.P[2]=parseInt(this.value)">
+		<input type="text" value="36" id="perimeter" oninput="C.conf.P[2]=parseInt(this.value)">
 	</td>
 	<td>&lambda;<sub>P<sub>obstacle</sub></sub></td><td>
-		<input type="text" value="5000" id="lperim" oninput="C.conf.LAMBDA_P[2]=parseInt(this.value)">
+		<input type="text" value="2" id="lperim" oninput="C.conf.LAMBDA_P[2]=parseInt(this.value)">
 	</td>
 </tr>
 <tr>
 	<td>Max<sub>Act<sub>Tcell</sub></sub></td><td>
-		<input type="text" value="80" id="mact" oninput="A.conf.MAX_ACT[1]=parseInt(this.value)">
+		<input type="text" value="80" id="mact" oninput="C.conf.MAX_ACT[1]=parseInt(this.value)">
 	</td>
 	<td>&lambda;<sub>Act<sub>Tcell</sub></sub></td><td>
-		<input type="text" value="200" id="lact" oninput="A.conf.LAMBDA_ACT[1]=parseInt(this.value)">
+		<input type="text" value="200" id="lact" oninput="C.conf.LAMBDA_ACT[1]=parseInt(this.value)">
 	</td>
 </tr>
 <tr>
 	<td>Max<sub>Act<sub>obstacle</sub></sub></td><td>
-		<input type="text" value="0" id="mact" oninput="A.conf.MAX_ACT[2]=parseInt(this.value)">
+		<input type="text" value="0" id="mact" oninput="C.conf.MAX_ACT[2]=parseInt(this.value)">
 	</td>
 	<td>&lambda;<sub>Act<sub>obstacle</sub></sub></td><td>
-		<input type="text" value="0" id="lact" oninput="A.conf.LAMBDA_ACT[2]=parseInt(this.value)">
+		<input type="text" value="0" id="lact" oninput="C.conf.LAMBDA_ACT[2]=parseInt(this.value)">
 	</td>
 </tr>
 <tr>
