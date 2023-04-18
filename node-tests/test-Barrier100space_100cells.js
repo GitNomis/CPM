@@ -1,6 +1,6 @@
 let CPM = require("./build/artistoo-cjs.js")
 var fs = require('fs');
-var test = 'Barrier100space_50cells'
+var test = 'Barrier100space_100cells'
 var dir = `./output/img/${test}`;
 
 if (!fs.existsSync(dir)){
@@ -62,7 +62,7 @@ let config = {
 		// non-background cellkinds.
 		// Runtime etc
 		BURNIN : 0,
-		RUNTIME : 1000,
+		RUNTIME : 4000,
 		RUNTIME_BROWSER : "Inf",
 		
 		// Visualization

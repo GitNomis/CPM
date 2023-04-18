@@ -1,6 +1,6 @@
 let CPM = require("./build/artistoo-cjs.js")
 var fs = require('fs');
-var test = 'NoBarrier'
+var test = 'Barrier100space_200cells_act20'
 var dir = `./output/img/${test}`;
 
 if (!fs.existsSync(dir)){
@@ -11,7 +11,7 @@ if (!fs.existsSync(dir)){
 	CONFIGURATION SETTINGS
 	----------------------------------
 */
-let spacing=50, nr_cells=50, radius=8, obstacles=false, cell_act=80
+let spacing=100, nr_cells=200, radius=8, obstacles=true, cell_act=20
 let sim,dim=250
 let old_pix = null
 let types = []
@@ -62,7 +62,7 @@ let config = {
 		// non-background cellkinds.
 		// Runtime etc
 		BURNIN : 0,
-		RUNTIME : 1000,
+		RUNTIME : 600,
 		RUNTIME_BROWSER : "Inf",
 		
 		// Visualization

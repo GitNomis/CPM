@@ -62,7 +62,7 @@ let config = {
 		// non-background cellkinds.
 		// Runtime etc
 		BURNIN : 0,
-		RUNTIME : 1000,
+		RUNTIME : 4000,
 		RUNTIME_BROWSER : "Inf",
 		
 		// Visualization
